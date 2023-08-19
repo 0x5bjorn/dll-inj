@@ -5,14 +5,15 @@
 
 # Directories
 .vs/
-bin/
-bin-int/
+output/
 
 # Files
-*.vcxproj
-*.vcxproj.user
-*.vcxproj.filters
-*.sln
+#*.vcxproj
+#*.vcxproj.user
+#*.vcxproj.filters
+#*.sln
+CMakeSettings.json
+TEST-CMakeLists.txt
 
 # User-specific files
 *.rsuser
