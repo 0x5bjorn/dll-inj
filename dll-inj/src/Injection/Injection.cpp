@@ -1,5 +1,7 @@
 #include "Injection.h"
 
+static bool CreateRemoteThreadWithInjectedDll(HANDLE& hRemoteProcess, LPVOID& rpBuffer);
+
 bool Injection::InjectDLL(std::string dllPath, unsigned long pid) {
 	unsigned int dllSize = dllPath.length() + 2;
 
@@ -34,7 +36,7 @@ bool Injection::InjectDLL(std::string dllPath, unsigned long pid) {
 	hRemoteProcess = nullptr;
 }
 
-bool Injection::CreateRemoteThreadWithInjectedDll(HANDLE& hRemoteProcess, LPVOID& rpBuffer) {
+static bool CreateRemoteThreadWithInjectedDll(HANDLE& hRemoteProcess, LPVOID& rpBuffer) {
 	// Get LoadLibraryA() function address from Kernel32 library/module, 
 	// required for CreateRemoteThread() to create remote thread which will load our dll
 	HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));

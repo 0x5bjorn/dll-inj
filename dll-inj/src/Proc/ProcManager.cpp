@@ -1,4 +1,4 @@
-#include "Proc.h"
+#include "ProcManager.h"
 
 void Proc::GetProcessList() {
     HANDLE hProcessesSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
