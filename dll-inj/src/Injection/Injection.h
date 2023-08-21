@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <string>
 
-namespace Injection {
+namespace Injection
+{
 	bool InjectDLL(std::string, unsigned long);
 }

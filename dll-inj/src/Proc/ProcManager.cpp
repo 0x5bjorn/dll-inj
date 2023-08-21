@@ -1,13 +1,16 @@
 #include "ProcManager.h"
 
-void Proc::GetProcessList() {
+void Proc::GetProcessList()
+{
     HANDLE hProcessesSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
-    if (hProcessesSnap != INVALID_HANDLE_VALUE) {
+    if (hProcessesSnap != INVALID_HANDLE_VALUE)
+    {
         PROCESSENTRY32 procEntry;
         procEntry.dwSize = sizeof(procEntry);
 
-        if (Process32First(hProcessesSnap, &procEntry)) {
+        if (Process32First(hProcessesSnap, &procEntry))
+        {
             do {
                 // Fill Struct 
                 _tprintf(TEXT("\n\n====================================================="));
@@ -24,14 +27,17 @@ void Proc::GetProcessList() {
     CloseHandle(hProcessesSnap);
 }
 
-void Proc::GetProcessModulesList(unsigned long pid) {
+void Proc::GetProcessModulesList(unsigned long pid)
+{
     HANDLE hProcessModulesSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, pid);
 
-    if (hProcessModulesSnap != INVALID_HANDLE_VALUE) {
+    if (hProcessModulesSnap != INVALID_HANDLE_VALUE)
+    {
         MODULEENTRY32 modEntry;
         modEntry.dwSize = sizeof(modEntry);
 
-        if (Module32First(hProcessModulesSnap, &modEntry)) {
+        if (Module32First(hProcessModulesSnap, &modEntry))
+        {
             do {
                 // Fill Struct 
                 _tprintf(TEXT("\n\n     MODULE NAME:     %s"), modEntry.szModule);

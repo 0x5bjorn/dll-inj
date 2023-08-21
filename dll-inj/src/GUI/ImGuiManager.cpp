@@ -1,6 +1,8 @@
 #include "ImGuiManager.h"
+#include "../Application.h"
 
-ImGuiManager::ImGuiManager() {
+ImGuiManager::ImGuiManager()
+{
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -23,35 +25,45 @@ ImGuiManager::ImGuiManager() {
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    // * TODO isolate and redo into Application singleton 
-    m_Window = glfwCreateWindow(1280, 720, "dll-inj", nullptr, nullptr);
-    glfwMakeContextCurrent(m_Window);
-    glfwSwapInterval(1); // Enable vsync
-    const char* glsl_version = "#version 130";
+    Application& app = Application::GetInstance();
+    GLFWwindow* window = app.GetWindow();
 
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
 }
 
-ImGuiManager::~ImGuiManager() {
+ImGuiManager::~ImGuiManager()
+{
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
-    // * TODO isolate and redo into Application singleton 
-    glfwDestroyWindow(m_Window);
-    glfwTerminate();
 }
 
-void ImGuiManager::StartFrame() {
+void ImGuiManager::StartFrame()
+{
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
 }
 
-void ImGuiManager::EndFrame() {
+void ImGuiManager::EndFrame()
+{
+    // Rendering
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+    // Update and Render additional Platform Windows
+    // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+    //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
+    }
 }
