@@ -10,13 +10,13 @@ public:
 
 	static Application& GetInstance() { return *s_Instance; }
 	GLFWwindow* GetWindow() { return m_Window; };
-	void Start();
-	void End();
+	void Run();
+	void Close();
 
-private:
 	Application();
 	~Application();
 
+private:
 	static Application* s_Instance;
 	GLFWwindow* m_Window;
 	bool m_Running = true;
