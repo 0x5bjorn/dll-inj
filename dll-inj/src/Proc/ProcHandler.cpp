@@ -1,4 +1,4 @@
-#include "ProcManager.h"
+#include "ProcHandler.h"
 
 void Proc::GetProcessList()
 {
@@ -16,10 +16,11 @@ void Proc::GetProcessList()
                 _tprintf(TEXT("\n\n====================================================="));
                 _tprintf(TEXT("\nPROCESS NAME:  %s"), procEntry.szExeFile);
                 _tprintf(TEXT("\n-------------------------------------------------------"));
-                _tprintf(TEXT("\n  Process ID        = 0x%08X"), procEntry.th32ProcessID);
+                _tprintf(TEXT("\n  Process ID        = %d"), procEntry.th32ProcessID);
                 _tprintf(TEXT("\n  Thread count      = %d"), procEntry.cntThreads);
-                _tprintf(TEXT("\n  Parent process ID = 0x%08X"), procEntry.th32ParentProcessID);
+                _tprintf(TEXT("\n  Parent process ID = %d"), procEntry.th32ParentProcessID);
                 _tprintf(TEXT("\n  Priority base     = %d"), procEntry.pcPriClassBase);
+                _tprintf(TEXT("\n  Usage     = %d"), procEntry.cntUsage);
             } while (Process32Next(hProcessesSnap, &procEntry));
         }
     }
@@ -42,9 +43,9 @@ void Proc::GetProcessModulesList(unsigned long pid)
                 // Fill Struct 
                 _tprintf(TEXT("\n\n     MODULE NAME:     %s"), modEntry.szModule);
                 _tprintf(TEXT("\n     Executable     = %s"), modEntry.szExePath);
-                _tprintf(TEXT("\n     Process ID     = 0x%08X"), modEntry.th32ProcessID);
-                _tprintf(TEXT("\n     Ref count (g)  = 0x%04X"), modEntry.GlblcntUsage);
-                _tprintf(TEXT("\n     Ref count (p)  = 0x%04X"), modEntry.ProccntUsage);
+                _tprintf(TEXT("\n     Process ID     = %d"), modEntry.th32ProcessID);
+                _tprintf(TEXT("\n     Ref count (g)  = %d"), modEntry.GlblcntUsage);
+                _tprintf(TEXT("\n     Ref count (p)  = %d"), modEntry.ProccntUsage);
                 _tprintf(TEXT("\n     Base address   = 0x%08X"), (DWORD)modEntry.modBaseAddr);
                 _tprintf(TEXT("\n     Base size      = %d"), modEntry.modBaseSize);
             } while (Module32Next(hProcessModulesSnap, &modEntry));

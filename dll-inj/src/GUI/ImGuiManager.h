@@ -13,6 +13,7 @@ public:
 
 	void StartFrame();
 	void EndFrame();
+	void DrawTable();
 
 private:
 	// Process info data

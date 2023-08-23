@@ -1,17 +1,20 @@
 #include "Application.h"
 
-// syntax ???
 Application* Application::s_Instance = nullptr;
 
-Application::Application()
+Application::Application(std::string title, unsigned int width, unsigned int height)
 {
+	m_WindowData.Title = title;
+	m_WindowData.Width = width;
+	m_WindowData.Height = height;
+
 	if (!s_Instance)
 	{
 		s_Instance = this;
 	}
 
 	int success = glfwInit();
-	m_Window = glfwCreateWindow(1280, 720, "dll-inj", nullptr, nullptr);
+	m_Window = glfwCreateWindow((int)m_WindowData.Width, (int)m_WindowData.Height, m_WindowData.Title.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(1); // Enable vsync
 
@@ -27,7 +30,7 @@ Application::~Application()
 
 void Application::Run()
 {
-	while (m_Running && !glfwWindowShouldClose(m_Window))
+	while (!glfwWindowShouldClose(m_Window))
 	{
 		// Poll and handle events (inputs, window resize, etc.)
 		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -37,21 +40,9 @@ void Application::Run()
 		glfwPollEvents();
 
 		m_ImGuiManager->StartFrame();
-
-		{
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::End();
-		}
-
+		m_ImGuiManager->DrawTable();
 		m_ImGuiManager->EndFrame();
 
 		glfwSwapBuffers(m_Window);
 	}
-}
-
-
-void Application::Close()
-{
-	m_Running = false;
 }

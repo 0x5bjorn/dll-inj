@@ -46,11 +46,14 @@ void ImGuiManager::StartFrame()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 }
 
 void ImGuiManager::EndFrame()
 {
+    ImGuiIO& io = ImGui::GetIO();
+    //io.DisplaySize = ImVec2((float)app.GetWindowData().Width, (float)app.GetWindowData().Height);
+
     // Rendering
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -58,7 +61,6 @@ void ImGuiManager::EndFrame()
     // Update and Render additional Platform Windows
     // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
     //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-    ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         GLFWwindow* backup_current_context = glfwGetCurrentContext();
@@ -66,4 +68,17 @@ void ImGuiManager::EndFrame()
         ImGui::RenderPlatformWindowsDefault();
         glfwMakeContextCurrent(backup_current_context);
     }
+}
+
+void ImGuiManager::DrawTable()
+{
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+
+    // Create a window called "Hello, world!" and append into it.
+    ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);                          
+    // Display some text (you can use a format strings too)
+    ImGui::Text("This is some useful text.");               
+    ImGui::End();
 }
