@@ -31,10 +31,16 @@ ImGuiManager::ImGuiManager()
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
+
+    ImFontConfig config;
+    io.Fonts->AddFontFromFileTTF("../Dependencies/imgui/misc/fonts/Roboto-Medium.ttf", 21.0f, &config);
+    io.Fonts->Build();
 }
 
 ImGuiManager::~ImGuiManager()
 {
+    m_ShowProcessModulesWindow = false;
+
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -74,26 +80,32 @@ void ImGuiManager::DrawTable()
 {
     Application& app = Application::GetInstance();
     std::shared_ptr<ProcChunk> procChunk = app.GetProcChunk();
+    std::vector<std::thread>& appWorkers = app.GetWorkerPool();
+
+    unsigned long pidForModulesTable = 0;
 
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
 
-    ImGui::Begin("Processes", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-    
     std::lock_guard<std::mutex> lock(procChunk->m_Mutex);
+    ImGui::Begin("Processes", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
     if (ImGui::BeginTable("table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
     {
         ImGui::TableSetupColumn("Process name");
         ImGui::TableSetupColumn("Process ID");
         ImGui::TableSetupColumn("Parent process ID");
         ImGui::TableHeadersRow();
-
         for (auto it = procChunk->m_Processes.rbegin(); it != procChunk->m_Processes.rend(); it++) 
         {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            if (ImGui::SmallButton(it->m_Name.c_str())) { std::cout << std::endl; }
+            if (ImGui::Button(it->m_Name.c_str())) 
+            {
+                m_ShowProcessModulesWindow = true;
+                appWorkers.push_back(std::thread(RefreshProcModules, it->m_ProcessId, std::ref(m_ShowProcessModulesWindow)));
+                pidForModulesTable = it->m_ProcessId;
+            }
             ImGui::TableNextColumn();
             ImGui::Text("%d", it->m_ProcessId);
             ImGui::TableNextColumn();
@@ -101,6 +113,58 @@ void ImGuiManager::DrawTable()
         }
         ImGui::EndTable();
     }
+
+    if (m_ShowProcessModulesWindow)
+    {
+        std::shared_ptr<ProcModulesChunk> procModulesChunk = app.GetProcModulesChunk();
+        std::lock_guard<std::mutex> lock(procModulesChunk->m_Mutex);
+
+        ImGui::Begin("Process Modules", NULL);   
+        ImGui::Text("Process ID: %d", pidForModulesTable);
+        ImGui::SameLine();
+        if (ImGui::Button("Inject")) { std::cout << std::endl; }
+        ImGui::SameLine();
+        if (ImGui::Button("Close"))
+        {
+            m_ShowProcessModulesWindow = false;
+            appWorkers.rbegin()->detach();
+            appWorkers.pop_back();
+        }
+
+        if (ImGui::BeginTable("table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
+        {
+            ImGui::TableSetupColumn("Module name");
+            ImGui::TableSetupColumn("Module path");
+            ImGui::TableSetupColumn("Module size");
+            ImGui::TableHeadersRow();
+            for (auto it = procModulesChunk->m_ProcModules.rbegin(); it != procModulesChunk->m_ProcModules.rend(); it++)
+            {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::Text(it->m_Name.c_str());
+                ImGui::TableNextColumn();
+                ImGui::Text(it->m_Path.c_str());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", it->m_Size);
+            }
+
+            ImGui::EndTable();
+        }
+        ImGui::End();
+    }
     
     ImGui::End();
+}
+
+void RefreshProcModules(unsigned long pid, bool& showProcessModulesWindow)
+{
+    Application& app = Application::GetInstance();
+
+    std::cout << "RefreshProcModules Worker started!" << std::endl;
+    while (showProcessModulesWindow && app.m_Running)
+    {
+        app.GetProcModulesChunk()->UpdateProcModules(pid);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+    std::cout << "RefreshProcModules Worker finished!" << std::endl;
 }

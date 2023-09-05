@@ -18,5 +18,7 @@ public:
 	void DrawTable();
 
 private:
-	// Process info data
+	bool m_ShowProcessModulesWindow = false;
 };
+
+void RefreshProcModules(unsigned long pid, bool& showProcessModulesWindow);

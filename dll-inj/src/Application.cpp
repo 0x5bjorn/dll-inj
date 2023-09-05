@@ -9,9 +9,7 @@ Application::Application(std::string title, unsigned int width, unsigned int hei
 	m_WindowData.Height = height;
 
 	if (!s_Instance)
-	{
 		s_Instance = this;
-	}
 
 	m_Running = true;
 	int success = glfwInit();
@@ -22,22 +20,19 @@ Application::Application(std::string title, unsigned int width, unsigned int hei
 	m_ImGuiManager = new ImGuiManager();
 
 	m_ProcChunk = std::make_shared<ProcChunk>();
-	m_Worker = std::thread([this] {
-		std::cout << "Worker started!" << std::endl;
-		while (m_Running) {
-			m_ProcChunk->UpdateProcesses();
-			std::this_thread::sleep_for(std::chrono::seconds(3));
-		}
-		std::cout << "Worker finished!" << std::endl;
-	});
+	m_ProcModulesChunk = std::make_shared<ProcModulesChunk>();
+	m_Workers.push_back(std::thread(&RefreshProcesses));
 }
 
 Application::~Application()
 {
 	m_Running = false;
-	m_Worker.join();
 
 	delete m_ImGuiManager;
+
+	for (std::thread& worker : m_Workers)
+		worker.join();
+
 	glfwDestroyWindow(m_Window);
 	glfwTerminate();
 }
@@ -59,4 +54,17 @@ void Application::Run()
 
 		glfwSwapBuffers(m_Window);
 	}
+}
+
+void RefreshProcesses()
+{
+	Application& app = Application::GetInstance();
+
+	std::cout << "RefreshProcesses Worker started!" << std::endl;
+	while (app.m_Running)
+	{
+		app.m_ProcChunk->UpdateProcesses();
+		std::this_thread::sleep_for(std::chrono::seconds(2));
+	}
+	std::cout << "RefreshProcesses Worker finished!" << std::endl;
 }

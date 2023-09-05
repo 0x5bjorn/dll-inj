@@ -34,7 +34,7 @@ struct ProcModuleInfo
 
 namespace Proc {
 	void GetProcesses(std::vector<ProcInfo>&);
-	void GetProcessModules(unsigned long);
+	void GetProcessModules(unsigned long, std::vector<ProcModuleInfo>&);
 }
 
 struct ProcChunk
@@ -44,12 +44,29 @@ struct ProcChunk
 
 	ProcChunk()
 	{
-		m_Processes.reserve(1024);
+		m_Processes.reserve(512);
 	}
 
 	void UpdateProcesses()
 	{
 		std::lock_guard<std::mutex> lock(m_Mutex);
 		Proc::GetProcesses(m_Processes);
+	}
+};
+
+struct ProcModulesChunk
+{
+	std::vector<ProcModuleInfo> m_ProcModules;
+	std::mutex m_Mutex;
+
+	ProcModulesChunk()
+	{
+		m_ProcModules.reserve(1024);
+	}
+
+	void UpdateProcModules(unsigned long pid)
+	{
+		std::lock_guard<std::mutex> lock(m_Mutex);
+		Proc::GetProcessModules(pid, m_ProcModules);
 	}
 };
