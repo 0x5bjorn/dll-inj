@@ -156,8 +156,6 @@
     <ClCompile Include="..\Dependencies\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\Dependencies\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Dependencies\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\Proc\ProcModuleInfo.cpp" />
-    <ClCompile Include="src\Proc\ProcInfo.cpp" />
     <ClCompile Include="src\Injection\Injection.cpp" />
     <ClCompile Include="src\Proc\ProcHandler.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -166,8 +164,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
-    <ClInclude Include="src\Proc\ProcModuleInfo.h" />
-    <ClInclude Include="src\Proc\ProcInfo.h" />
     <ClInclude Include="src\Injection\Injection.h" />
     <ClInclude Include="src\Proc\ProcHandler.h" />
     <ClInclude Include="src\GUI\ImGuiManager.h" />

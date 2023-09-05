@@ -13,16 +13,30 @@ Application::Application(std::string title, unsigned int width, unsigned int hei
 		s_Instance = this;
 	}
 
+	m_Running = true;
 	int success = glfwInit();
 	m_Window = glfwCreateWindow((int)m_WindowData.Width, (int)m_WindowData.Height, m_WindowData.Title.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(m_Window);
 	glfwSwapInterval(1); // Enable vsync
 
 	m_ImGuiManager = new ImGuiManager();
+
+	m_ProcChunk = std::make_shared<ProcChunk>();
+	m_Worker = std::thread([this] {
+		std::cout << "Worker started!" << std::endl;
+		while (m_Running) {
+			m_ProcChunk->UpdateProcesses();
+			std::this_thread::sleep_for(std::chrono::seconds(3));
+		}
+		std::cout << "Worker finished!" << std::endl;
+	});
 }
 
 Application::~Application()
 {
+	m_Running = false;
+	m_Worker.join();
+
 	delete m_ImGuiManager;
 	glfwDestroyWindow(m_Window);
 	glfwTerminate();

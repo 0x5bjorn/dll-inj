@@ -7,7 +7,7 @@ ImGuiManager::ImGuiManager()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
     //io.ConfigViewportsNoAutoMerge = true;
@@ -72,13 +72,35 @@ void ImGuiManager::EndFrame()
 
 void ImGuiManager::DrawTable()
 {
+    Application& app = Application::GetInstance();
+    std::shared_ptr<ProcChunk> procChunk = app.GetProcChunk();
+
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
 
-    // Create a window called "Hello, world!" and append into it.
-    ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);                          
-    // Display some text (you can use a format strings too)
-    ImGui::Text("This is some useful text.");               
+    ImGui::Begin("Processes", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+    
+    std::lock_guard<std::mutex> lock(procChunk->m_Mutex);
+    if (ImGui::BeginTable("table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
+    {
+        ImGui::TableSetupColumn("Process name");
+        ImGui::TableSetupColumn("Process ID");
+        ImGui::TableSetupColumn("Parent process ID");
+        ImGui::TableHeadersRow();
+
+        for (auto it = procChunk->m_Processes.rbegin(); it != procChunk->m_Processes.rend(); it++) 
+        {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            if (ImGui::SmallButton(it->m_Name.c_str())) { std::cout << std::endl; }
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", it->m_ProcessId);
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", it->m_ParentProcessId);
+        }
+        ImGui::EndTable();
+    }
+    
     ImGui::End();
 }
