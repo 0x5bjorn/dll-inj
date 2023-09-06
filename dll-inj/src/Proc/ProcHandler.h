@@ -37,6 +37,8 @@ namespace Proc {
 	void GetProcessModules(unsigned long, std::vector<ProcModuleInfo>&);
 }
 
+std::string convertWstringToString(WCHAR* wchar);
+
 struct ProcChunk
 {
 	std::vector<ProcInfo> m_Processes;

@@ -43,4 +43,4 @@ private:
 	std::vector<std::thread> m_Workers;
 };
 
-void RefreshProcesses();
+static void RefreshProcesses();

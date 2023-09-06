@@ -1,6 +1,8 @@
 #include "ImGuiManager.h"
 #include "../Application.h"
 
+static unsigned long pidForModulesTable = 0;
+
 ImGuiManager::ImGuiManager()
 {
     IMGUI_CHECKVERSION();
@@ -76,13 +78,11 @@ void ImGuiManager::EndFrame()
     }
 }
 
-void ImGuiManager::DrawTable()
+void ImGuiManager::DrawProcessTable()
 {
     Application& app = Application::GetInstance();
     std::shared_ptr<ProcChunk> procChunk = app.GetProcChunk();
     std::vector<std::thread>& appWorkers = app.GetWorkerPool();
-
-    unsigned long pidForModulesTable = 0;
 
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
@@ -102,9 +102,17 @@ void ImGuiManager::DrawTable()
             ImGui::TableNextColumn();
             if (ImGui::Button(it->m_Name.c_str())) 
             {
+                // TODO revision thread pool implementation
+                if (!m_ShowProcessModulesWindow && appWorkers.size() > 1 && appWorkers.rbegin()->joinable())
+                {
+                    appWorkers.rbegin()->join();
+                    appWorkers.pop_back();
+                }
+
                 m_ShowProcessModulesWindow = true;
-                appWorkers.push_back(std::thread(RefreshProcModules, it->m_ProcessId, std::ref(m_ShowProcessModulesWindow)));
                 pidForModulesTable = it->m_ProcessId;
+                if (appWorkers.size() < 2)
+                    appWorkers.push_back(std::thread(RefreshProcModules, std::ref(pidForModulesTable), std::ref(m_ShowProcessModulesWindow)));
             }
             ImGui::TableNextColumn();
             ImGui::Text("%d", it->m_ProcessId);
@@ -115,48 +123,45 @@ void ImGuiManager::DrawTable()
     }
 
     if (m_ShowProcessModulesWindow)
-    {
-        std::shared_ptr<ProcModulesChunk> procModulesChunk = app.GetProcModulesChunk();
-        std::lock_guard<std::mutex> lock(procModulesChunk->m_Mutex);
+        ImGuiManager::DrawProcModulesTable();
 
-        ImGui::Begin("Process Modules", NULL);   
-        ImGui::Text("Process ID: %d", pidForModulesTable);
-        ImGui::SameLine();
-        if (ImGui::Button("Inject")) { std::cout << std::endl; }
-        ImGui::SameLine();
-        if (ImGui::Button("Close"))
-        {
-            m_ShowProcessModulesWindow = false;
-            appWorkers.rbegin()->detach();
-            appWorkers.pop_back();
-        }
-
-        if (ImGui::BeginTable("table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
-        {
-            ImGui::TableSetupColumn("Module name");
-            ImGui::TableSetupColumn("Module path");
-            ImGui::TableSetupColumn("Module size");
-            ImGui::TableHeadersRow();
-            for (auto it = procModulesChunk->m_ProcModules.rbegin(); it != procModulesChunk->m_ProcModules.rend(); it++)
-            {
-                ImGui::TableNextRow();
-                ImGui::TableNextColumn();
-                ImGui::Text(it->m_Name.c_str());
-                ImGui::TableNextColumn();
-                ImGui::Text(it->m_Path.c_str());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", it->m_Size);
-            }
-
-            ImGui::EndTable();
-        }
-        ImGui::End();
-    }
-    
     ImGui::End();
 }
 
-void RefreshProcModules(unsigned long pid, bool& showProcessModulesWindow)
+void ImGuiManager::DrawProcModulesTable()
+{
+    Application& app = Application::GetInstance();
+    std::shared_ptr<ProcModulesChunk> procModulesChunk = app.GetProcModulesChunk();
+    std::lock_guard<std::mutex> lock(procModulesChunk->m_Mutex);
+
+    ImGui::Begin("Process Modules", &m_ShowProcessModulesWindow);
+    ImGui::Text("Process ID: %d", pidForModulesTable);
+    ImGui::SameLine();
+    if (ImGui::Button("Inject")) { std::cout << std::endl; }
+
+    if (ImGui::BeginTable("table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
+    {
+        ImGui::TableSetupColumn("Module name");
+        ImGui::TableSetupColumn("Module path");
+        ImGui::TableSetupColumn("Module size");
+        ImGui::TableHeadersRow();
+        for (auto it = procModulesChunk->m_ProcModules.rbegin(); it != procModulesChunk->m_ProcModules.rend(); it++)
+        {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::Text(it->m_Name.c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text(it->m_Path.c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", it->m_Size);
+        }
+
+        ImGui::EndTable();
+    }
+    ImGui::End();
+}
+
+static void RefreshProcModules(unsigned long& pid, bool& showProcessModulesWindow)
 {
     Application& app = Application::GetInstance();
 

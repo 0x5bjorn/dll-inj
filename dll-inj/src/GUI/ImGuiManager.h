@@ -15,10 +15,11 @@ public:
 
 	void StartFrame();
 	void EndFrame();
-	void DrawTable();
+	void DrawProcessTable();
+	void DrawProcModulesTable();
 
 private:
 	bool m_ShowProcessModulesWindow = false;
 };
 
-void RefreshProcModules(unsigned long pid, bool& showProcessModulesWindow);
+static void RefreshProcModules(unsigned long&, bool&);

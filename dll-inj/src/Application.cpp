@@ -49,14 +49,14 @@ void Application::Run()
 		glfwPollEvents();
 
 		m_ImGuiManager->StartFrame();
-		m_ImGuiManager->DrawTable();
+		m_ImGuiManager->DrawProcessTable();
 		m_ImGuiManager->EndFrame();
 
 		glfwSwapBuffers(m_Window);
 	}
 }
 
-void RefreshProcesses()
+static void RefreshProcesses()
 {
 	Application& app = Application::GetInstance();
 
