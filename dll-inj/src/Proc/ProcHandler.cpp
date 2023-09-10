@@ -13,7 +13,7 @@ void Proc::GetProcesses(std::vector<ProcInfo>& processes)
         if (Process32First(hProcessesSnap, &procEntry))
         {
             do {
-                std::string procName = convertWstringToString(procEntry.szExeFile);
+                std::string procName = ConvertWcharToString(procEntry.szExeFile);
                 processes.emplace_back(procName, procEntry.th32ProcessID, procEntry.th32ParentProcessID);
             } while (Process32Next(hProcessesSnap, &procEntry));
         }
@@ -36,8 +36,8 @@ void Proc::GetProcessModules(unsigned long pid, std::vector<ProcModuleInfo>& pro
         {
             do {
 
-                std::string modName = convertWstringToString(modEntry.szModule);
-                std::string modPath = convertWstringToString(modEntry.szExePath);
+                std::string modName = ConvertWcharToString(modEntry.szModule);
+                std::string modPath = ConvertWcharToString(modEntry.szExePath);
                 procModules.emplace_back(modEntry.th32ProcessID, modName, modPath, modEntry.modBaseSize);
             } while (Module32Next(hProcessModulesSnap, &modEntry));
         }
@@ -46,11 +46,3 @@ void Proc::GetProcessModules(unsigned long pid, std::vector<ProcModuleInfo>& pro
     CloseHandle(hProcessModulesSnap);
 }
 
-std::string convertWstringToString(WCHAR* wchar)
-{
-    using convert_type = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_type, wchar_t> converter;
-
-    std::wstring wstringToCovnert(wchar);
-    return converter.to_bytes(wstringToCovnert);
-}

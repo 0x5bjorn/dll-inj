@@ -1,7 +1,5 @@
 #include "Injection.h"
 
-static bool CreateRemoteThreadWithInjectedDll(HANDLE& hRemoteProcess, LPVOID& rpBuffer);
-
 bool Injection::InjectDLL(std::string dllPath, unsigned long pid)
 {
 	unsigned int dllSize = dllPath.length() + 2;

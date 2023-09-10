@@ -3,11 +3,11 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <tchar.h>
-#include <string>
 #include <vector>
 #include <mutex>
 #include <locale>
-#include <codecvt>
+
+#include "../Utils.h"
 
 struct ProcInfo
 {
@@ -36,8 +36,6 @@ namespace Proc {
 	void GetProcesses(std::vector<ProcInfo>&);
 	void GetProcessModules(unsigned long, std::vector<ProcModuleInfo>&);
 }
-
-std::string convertWstringToString(WCHAR* wchar);
 
 struct ProcChunk
 {

@@ -137,7 +137,7 @@ void ImGuiManager::DrawProcModulesTable()
     ImGui::Begin("Process Modules", &m_ShowProcessModulesWindow);
     ImGui::Text("Process ID: %d", pidForModulesTable);
     ImGui::SameLine();
-    if (ImGui::Button("Inject")) { std::cout << std::endl; }
+    if (ImGui::Button("Inject")) { std::cout << WinODB::ShowOpenDialogBox() << std::endl; }
 
     if (ImGui::BeginTable("table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
     {

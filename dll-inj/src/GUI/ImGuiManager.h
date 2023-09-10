@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "../Proc/ProcHandler.h"
+#include "../OpenDialogBox/WinOpenDialogBox.h"
 
 class ImGuiManager
 {
