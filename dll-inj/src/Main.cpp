@@ -4,9 +4,7 @@
 
 int main()
 {
-	Application* app = new Application("dll-inj", 1280, 720);
-
-	app->Run();
-
-	delete app;
+	Application& app = Application::GetInstance();
+	app.Run();
+	Application::FreeInstance();
 }

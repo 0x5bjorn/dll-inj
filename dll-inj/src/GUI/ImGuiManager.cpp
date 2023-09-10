@@ -1,7 +1,9 @@
 #include "ImGuiManager.h"
 #include "../Application.h"
+#include "../Injection/Injection.h"
 
 static unsigned long pidForModulesTable = 0;
+static std::string pNameForModulesTable = "";
 
 ImGuiManager::ImGuiManager()
 {
@@ -10,7 +12,7 @@ ImGuiManager::ImGuiManager()
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
@@ -89,7 +91,7 @@ void ImGuiManager::DrawProcessTable()
     ImGui::SetNextWindowSize(viewport->Size);
 
     std::lock_guard<std::mutex> lock(procChunk->m_Mutex);
-    ImGui::Begin("Processes", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+    ImGui::Begin("Processes", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
     if (ImGui::BeginTable("table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
     {
         ImGui::TableSetupColumn("Process name");
@@ -109,6 +111,7 @@ void ImGuiManager::DrawProcessTable()
                     appWorkers.pop_back();
                 }
 
+                pNameForModulesTable = it->m_Name;
                 m_ShowProcessModulesWindow = true;
                 pidForModulesTable = it->m_ProcessId;
                 if (appWorkers.size() < 2)
@@ -121,11 +124,11 @@ void ImGuiManager::DrawProcessTable()
         }
         ImGui::EndTable();
     }
+    ImGui::End();
+
 
     if (m_ShowProcessModulesWindow)
         ImGuiManager::DrawProcModulesTable();
-
-    ImGui::End();
 }
 
 void ImGuiManager::DrawProcModulesTable()
@@ -134,10 +137,17 @@ void ImGuiManager::DrawProcModulesTable()
     std::shared_ptr<ProcModulesChunk> procModulesChunk = app.GetProcModulesChunk();
     std::lock_guard<std::mutex> lock(procModulesChunk->m_Mutex);
 
-    ImGui::Begin("Process Modules", &m_ShowProcessModulesWindow);
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowSize(viewport->Size);
+
+    ImGui::Begin(pNameForModulesTable.c_str(), &m_ShowProcessModulesWindow);
     ImGui::Text("Process ID: %d", pidForModulesTable);
     ImGui::SameLine();
-    if (ImGui::Button("Inject")) { std::cout << WinODB::ShowOpenDialogBox() << std::endl; }
+    if (ImGui::Button("Inject")) 
+    { 
+        Injection::InjectDLL(WinODB::ShowOpenDialogBox(), pidForModulesTable);
+    }
+    ImGui::Separator();
 
     if (ImGui::BeginTable("table", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders))
     {
@@ -152,6 +162,7 @@ void ImGuiManager::DrawProcModulesTable()
             ImGui::Text(it->m_Name.c_str());
             ImGui::TableNextColumn();
             ImGui::Text(it->m_Path.c_str());
+            ImGui::SetItemTooltip(it->m_Path.c_str());
             ImGui::TableNextColumn();
             ImGui::Text("%d", it->m_Size);
         }

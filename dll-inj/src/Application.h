@@ -22,10 +22,20 @@ public:
 	std::shared_ptr<ProcModulesChunk> m_ProcModulesChunk;
 	bool m_Running = false;
 
-	Application(std::string title, unsigned int width, unsigned int height);
-	~Application();
+	static Application& GetInstance()
+	{
+		if (s_Instance == nullptr)
+			s_Instance == new Application("dll-inj", 1280, 720);
 
-	static Application& GetInstance() { return *s_Instance; }
+		return *s_Instance;
+	}
+
+	static void FreeInstance()
+	{
+		delete s_Instance;
+		s_Instance = nullptr;
+	}
+
 	GLFWwindow* GetWindow() { return m_Window; }
 	WindowData GetWindowData() { return m_WindowData; }
 	std::vector<std::thread>& GetWorkerPool() { return m_Workers; }
@@ -35,6 +45,9 @@ public:
 	std::shared_ptr<ProcModulesChunk> GetProcModulesChunk() { return m_ProcModulesChunk; }
 
 private:
+	Application(std::string title, unsigned int width, unsigned int height);
+	~Application();
+
 	static Application* s_Instance;
 	GLFWwindow* m_Window;
 	WindowData m_WindowData;

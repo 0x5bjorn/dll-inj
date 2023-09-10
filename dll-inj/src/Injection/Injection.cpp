@@ -19,18 +19,30 @@ bool Injection::InjectDLL(std::string dllPath, unsigned long pid)
 	LPVOID rpBuffer = VirtualAllocEx(hRemoteProcess, nullptr, dllSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
 	if (rpBuffer == nullptr)
 	{
+		CloseHandle(hRemoteProcess);
+		hRemoteProcess = nullptr;
+
 		printf("Error with VirtualAllocEx()\n");
 		return FALSE;
 	}
 
 	if (!WriteProcessMemory(hRemoteProcess, rpBuffer, dllPath.c_str(), dllSize, nullptr))
 	{
+		CloseHandle(hRemoteProcess);
+		hRemoteProcess = nullptr;
+
 		printf("Error with WriteProcessMemory()\n");
 		return FALSE;
 	}
 
 	if (!CreateRemoteThreadWithInjectedDll(hRemoteProcess, rpBuffer))
 	{
+		VirtualFreeEx(hRemoteProcess, rpBuffer, 0x0, MEM_RELEASE);
+		rpBuffer = nullptr;
+
+		CloseHandle(hRemoteProcess);
+		hRemoteProcess = nullptr;
+
 		printf("Error with CreateRemoteThreadWithInjectedDll()\n");
 		return FALSE;
 	}
@@ -55,15 +67,7 @@ static bool CreateRemoteThreadWithInjectedDll(HANDLE& hRemoteProcess, LPVOID& rp
 	HANDLE hRemoteThread = CreateRemoteThread(hRemoteProcess, nullptr, NULL, (LPTHREAD_START_ROUTINE)paLoadLibraryA, rpBuffer, NULL, nullptr);
 	if (hRemoteThread == nullptr)
 	{
-		VirtualFreeEx(hRemoteProcess, rpBuffer, 0x0, MEM_RELEASE);
-		rpBuffer = nullptr;
-		CloseHandle(hRemoteProcess);
-		hRemoteProcess = nullptr;
-
 		printf("Error with CreateRemoteThread()\n");
 		return FALSE;
 	}
-
-	CloseHandle(hKernel32);
-	hKernel32 = nullptr;
 }
