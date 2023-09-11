@@ -146,9 +146,6 @@ void ImGuiManager::DrawProcModulesTable()
     std::shared_ptr<ProcModulesChunk> procModulesChunk = app.GetProcModulesChunk();
     std::lock_guard<std::mutex> lock(procModulesChunk->m_Mutex);
 
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowSize(viewport->Size);
-
     if (ImGui::BeginTabItem(pNameForModulesTable.c_str(), &m_ShowProcessModulesWindow))
     {
         ImGui::Text("Process ID: %d", pidForModulesTable);
