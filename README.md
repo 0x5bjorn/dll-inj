@@ -2,13 +2,18 @@
 *in development*
 
 Simple DLL injector with GUI written in C++ for educational purposes only
-
+## Demo
+![demo](readme-media/demo.gif)
 ## Code organization
-
-## Screenshots
-
+- **GUI** - GUI management using **Dear ImGui**
+- **Injection** - DLL injection implemention using Windows API
+- **OpenDialogBox** - file selection dialog box using Windows API
+- **Proc** - process and process modules querying handler
+- **Application** - application and app window management
+## Description
+Read more about project implementation in [blog post](https://umarbaev-s.github.io/blog/first-blog/)
 ## Future plans
-
+- Implement thread pool for thread reuse (currently a simple thread creation and deletion mechanism is utilized)
 ## References
 - Windows process and its modules(dll) listing - https://learn.microsoft.com/en-us/windows/win32/toolhelp/taking-a-snapshot-and-viewing-processes
 - Native Windows File Selection prompt - https://learn.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
