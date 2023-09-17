@@ -5,7 +5,7 @@ Simple DLL injector with GUI written in C++ for educational purposes only
 ## Demo
 ![demo](readme-media/demo.gif)
 ## Code organization
-- **GUI** - GUI management using **Dear ImGui**
+- **GUI** - GUI management using [**Dear ImGui**](https://github.com/ocornut/imgui)
 - **Injection** - DLL injection implemention using Windows API
 - **OpenDialogBox** - file selection dialog box using Windows API
 - **Proc** - process and process modules querying handler
