@@ -7,7 +7,7 @@
 #include <chrono>
 #include <iostream>
 
-#include "Proc/ProcHandler.h"
+#include "Proc/Proc.h"
 #include "GUI/ImGuiManager.h"
 
 class Application

@@ -1,4 +1,4 @@
-#include "ProcHandler.h"
+#include "Proc.h"
 
 void Proc::GetProcesses(std::vector<ProcInfo>& processes)
 {

@@ -6,7 +6,7 @@
 #include <imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
 
-#include "../Proc/ProcHandler.h"
+#include "../Proc/Proc.h"
 #include "../OpenDialogBox/WinOpenDialogBox.h"
 
 class ImGuiManager

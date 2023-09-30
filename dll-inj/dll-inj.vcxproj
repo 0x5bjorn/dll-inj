@@ -158,7 +158,7 @@
     <ClCompile Include="..\Dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Injection\Injection.cpp" />
     <ClCompile Include="src\OpenDialogBox\WinOpenDialogBox.cpp" />
-    <ClCompile Include="src\Proc\ProcHandler.cpp" />
+    <ClCompile Include="src\Proc\Proc.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\GUI\ImGuiManager.cpp" />
     <ClCompile Include="src\Application.cpp" />
@@ -174,7 +174,7 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Injection\Injection.h" />
     <ClInclude Include="src\OpenDialogBox\WinOpenDialogBox.h" />
-    <ClInclude Include="src\Proc\ProcHandler.h" />
+    <ClInclude Include="src\Proc\Proc.h" />
     <ClInclude Include="src\GUI\ImGuiManager.h" />
     <ClInclude Include="src\Utils.h" />
   </ItemGroup>
