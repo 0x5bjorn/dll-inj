@@ -11,7 +11,7 @@ Simple DLL injector with GUI written in C++ for educational purposes only
 - **Proc** - process and process modules querying handler
 - **Application** - application and app window management
 ## Description
-Read more about project implementation in [blog post](https://umarbaev-s.github.io/blog/first-blog/)
+Read more about project implementation in [blog post](https://0x5bjorn.github.io/blog/first-blog/)
 ## Future plans
 - Implement thread pool for thread reuse (currently a simple thread creation and deletion mechanism is utilized)
 ## References
